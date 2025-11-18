@@ -32,13 +32,15 @@ jobs:
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Verify Maestro Install
+        run: |
           maestro --version
 
       - name: Install APK on Emulator
         run: |
-          adb devices
           adb install ./sample.apk
 
       - name: Run Maestro Tests
         run: |
-          maestro test ./andriod-flow.yaml
+          maestro test ./android-flow.yaml
