@@ -1,1 +1,22 @@
+name: iOS E2E with Maestro
 
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          
+      - name: Set up Xcode Simulator & Build app
+        run: |
