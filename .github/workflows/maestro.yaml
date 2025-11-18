@@ -18,6 +18,11 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
       - name: Start Android Emulator & Run Maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -31,13 +36,8 @@ jobs:
             # Install APK
             adb install ./sample.apk
             
-            # Install Maestro CLI
-            curl -Ls "https://get.maestro.mobile.dev" | bash
-            export PATH="$HOME/.maestro/bin:$PATH"
-            
-            # Verify installation
+            # Verify Maestro installation
             maestro --version
             
             # Run Maestro flows
-            bash -c "maestro --version && maestro test ./android-flow.yaml"
-
+            maestro test ./android-flow.yaml
