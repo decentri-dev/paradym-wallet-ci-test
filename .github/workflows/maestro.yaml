@@ -33,11 +33,11 @@ jobs:
             
             # Install Maestro CLI
             curl -Ls "https://get.maestro.mobile.dev" | bash
-            export PATH="$PATH:$HOME/.maestro/bin"
+            export PATH="$HOME/.maestro/bin:$PATH"
             
             # Verify installation
             maestro --version
             
             # Run Maestro flows
-            maestro test ./android-flow.yaml
+            bash -c "maestro --version && maestro test ./android-flow.yaml"
 
