@@ -34,10 +34,10 @@ jobs:
             echo "Emulator started successfully"
             
             # Install APK
-            adb install ./sample.apk
+            adb install ./paradym-wallet.apk
             
             # Verify Maestro installation
             maestro --version
             
             # Run Maestro flows
-            maestro test ./android-flow.yaml
+            maestro test ./get-started.yaml
