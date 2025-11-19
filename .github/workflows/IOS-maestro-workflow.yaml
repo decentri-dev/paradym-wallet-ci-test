@@ -44,45 +44,28 @@ jobs:
           echo "Available SDKs:"
           xcodebuild -showsdks
 
-          # Build de app vanuit test.xcodeproj met scheme 'test'
           xcodebuild \
             -project test.xcodeproj \
             -scheme test \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
             build
 
-      - name: Boot simulator and install app
+          echo "Built products:"
+          ls -R build/Build/Products || true
+
+      - name: Run Maestro flows
         run: |
-          DEVICE_NAME="iPhone 17 Pro"
-
-          echo "Listing available simulators:"
-          xcrun simctl list devices
-
-          # Boot de simulator (als hij al draait is het oké)
-          xcrun simctl boot "$DEVICE_NAME" || true
-          open -a Simulator || true
-
-          # Pad naar de .app in DerivedData
           APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
           echo "Using APP_PATH=$APP_PATH"
 
           if [ ! -d "$APP_PATH" ]; then
             echo "❌ app path not found: $APP_PATH"
-            echo "Contents of build/Build/Products/Debug-iphonesimulator:"
             ls -R "$PWD/build/Build/Products" || true
             exit 1
           fi
 
-          # Installeren op de booted simulator
-          xcrun simctl install booted "$APP_PATH"
-
-          # Optioneel: app starten als je straks een bundleId hebt
-          # xcrun simctl launch booted com.example.test || true
-
-      - name: Run Maestro flows
-        run: |
           maestro --version
-          maestro test ./ios-flow.yaml --app "$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
+          maestro test ./ios-flow.yaml --app "$APP_PATH"
