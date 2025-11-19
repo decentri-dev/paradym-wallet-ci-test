@@ -5,7 +5,7 @@ appId: com.android.settings
 
 - pressKey: "Home"
 - openLink:
-    link: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Ffunke.animo.id%2Foid4vci%2F188e2459-6da8-4431-9062-2fcdac274f41%2Foffers%2F28b5dc42-650e-4538-8ccf-1dd48cde9baf"
+    link: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Ffunke.animo.id%2Foid4vci%2F188e2459-6da8-4431-9062-2fcdac274f41%2Foffers%2F5d399d2a-1750-40ef-97d8-04da204de39c"
 
 - repeat:
     while:
@@ -13,9 +13,15 @@ appId: com.android.settings
     commands:
       - tapOn: "1"
 
+- waitForAnimationToEnd:
+    timeout: 5000
+
 - assertVisible: "Interact with Bundesdruckerei?"
 - assertVisible: "Bundesdruckerei wants to offer you a card."
 - tapOn: "Yes, continue"
+
+- waitForAnimationToEnd:
+    timeout: 5000
 
 - assertVisible: "Card offered"
 - assertVisible: "Bundesdruckerei wants to issue you the following card:"
@@ -24,15 +30,24 @@ appId: com.android.settings
 - assertVisible: "Stop"
 - tapOn: "Continue"
 
+- waitForAnimationToEnd:
+    timeout: 5000
+
 - assertVisible: "Is the information correct?"
 - assertVisible: "Credential"
 - assertVisible: "Decline"
 - tapOn: "Accept"
 
+- waitForAnimationToEnd:
+    timeout: 5000
+
 - assertVisible: "Success!"
 - assertVisible: "Card successfully added to your wallet!"
 - assertVisible: "Credential"
 - tapOn: Go to wallet
+
+- waitForAnimationToEnd:
+    timeout: 5000
 
 - assertVisible: "Hello!"
 - assertVisible: "Receive or share from your wallet "
