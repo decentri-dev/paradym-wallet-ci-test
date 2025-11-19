@@ -42,4 +42,4 @@ jobs:
             maestro --version
             
             # Run Maestro flows
-            maestro test ./get-started.yaml
+            maestro test ./issue-with-deeplink.yaml
