@@ -13,54 +13,23 @@ jobs:
         with:
           lfs: true
 
-      # Unzip volledige iOS project map (verwacht ios-test.zip -> map 'test/')
       - name: Unzip iOS project
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Files in repo root:"
-          ls -R
-
           if [ ! -f "ios-test.zip" ]; then
             echo "❌ ios-test.zip not found in repo root."
             exit 1
           fi
 
-          # Oude 'test' directory opruimen als die bestaat
-          if [ -d "test" ]; then
-            echo "Removing existing test directory..."
-            rm -rf test
-          fi
-
+          rm -rf test || true
           unzip -o ios-test.zip
-
-          echo "After unzip (test folder):"
-          ls -R test || true
 
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
-      - name: Show runtimes and devices (debug)
-        run: |
-          echo "=== RUNTIMES ==="
-          xcrun simctl list runtimes
-          echo "=== DEVICES ==="
-          xcrun simctl list devices
-
       - name: Build iOS app for iOS 26.1 Simulator
         run: |
-          echo "Xcode version:"
-          xcodebuild -version
-
-          echo "Available SDKs:"
-          xcodebuild -showsdks
-
-          echo "Project info:"
-          xcodebuild -list -project test/test.xcodeproj
-
-          # Build de app met expliciete 26.1 simulator
           xcodebuild \
             -project test/test.xcodeproj \
             -scheme test \
@@ -70,58 +39,28 @@ jobs:
             -derivedDataPath build \
             build
 
-          echo "Built products:"
-          ls -R build/Build/Products || true
-
-      - name: Print bundle ID
+      - name: Boot iOS 26.1 simulator and install app
         run: |
           APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
-          echo "Using APP_PATH=$APP_PATH"
-          if [ ! -d "$APP_PATH" ]; then
-            echo "❌ app path not found: $APP_PATH"
-            ls -R "$PWD/build/Build/Products" || true
-            exit 1
-          fi
-          echo "Bundle ID:"
-          defaults read "$APP_PATH/Info.plist" CFBundleIdentifier || echo "Could not read bundle id"
-
-      - name: Boot iOS 26.1 iPhone 17 simulator and install app
-        run: |
-          APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
-          echo "Using APP_PATH=$APP_PATH"
 
           if [ ! -d "$APP_PATH" ]; then
-            echo "❌ app path not found: $APP_PATH"
-            ls -R "$PWD/build/Build/Products" || true
+            echo "❌ Built app not found at $APP_PATH"
             exit 1
           fi
 
-          echo "=== DEVICES FOR iOS 26.1 ==="
-          xcrun simctl list devices 'iOS 26.1'
-
-          # Kies een iPhone 17 onder de iOS 26.1 runtime
           DEVICE_UDID=$(xcrun simctl list devices 'iOS 26.1' | awk -F '[()]' '/iPhone 17 / {print $2; exit}')
 
           if [ -z "$DEVICE_UDID" ]; then
-            echo "❌ No iPhone 17 on iOS 26.1 found. See device list above."
+            echo "❌ No iPhone 17 on iOS 26.1 found."
             exit 1
           fi
 
-          echo "Using simulator UDID: $DEVICE_UDID"
-
-          # Boot de simulator (als hij al draait is het oké)
           xcrun simctl boot "$DEVICE_UDID" || true
-
-          echo "Waiting 60s for simulator to fully boot..."
           sleep 60
-
-          echo "Installing app on simulator..."
           xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
 
       - name: Run Maestro flows
         env:
-          # Timeout in milliseconden – default is ~120000, we gooien het omhoog
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 240000
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 120000
         run: |
-          maestro --version
           maestro test ./ios-flow.yaml
