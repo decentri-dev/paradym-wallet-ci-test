@@ -1,107 +1,29 @@
-name: iOS E2E with Maestro
+name: Test iOS 26 Simulator
 
 on:
   workflow_dispatch:
 
 jobs:
-  e2e:
+  test-sim:
     runs-on: macos-26
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Launch iOS 26.x Simulator (iPhone 17)
+        id: sim
+        uses: futureware-tech/simulator-action@v4
         with:
-          lfs: true
+          os: iOS
+          model: 'iPhone 17'
+          os_version: '>=26.0'
+          wait_for_boot: true
 
-      # Unzip volledige iOS project map
-      - name: Unzip iOS project
+      - name: Print simulator info
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Listing files:"
-          ls -R
+          echo "Launched simulator UDID:"
+          echo "${{ steps.sim.outputs.udid }}"
 
-          if [ ! -f "ios-test.zip" ]; then
-            echo "❌ ios-test.zip not found in repo root."
-            exit 1
-          fi
-
-          # Oude 'test' folder opruimen als die bestaat
-          if [ -d "test" ]; then
-            echo "Removing existing test directory..."
-            rm -rf test
-          fi
-
-          unzip -o ios-test.zip
-
-          echo "After unzip (test folder):"
-          ls -R test || true
-
-      - name: Install Maestro CLI
-        run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-
-      - name: Build iOS app for Simulator
-        run: |
-          echo "Xcode version:"
-          xcodebuild -version
-
-          echo "Available SDKs:"
-          xcodebuild -showsdks
-
-          # Laat zien welke targets/schemes er zijn (debug)
-          echo "Project info:"
-          xcodebuild -list -project test/test.xcodeproj
-
-          # Build de app vanuit test/test.xcodeproj met scheme 'test'
-          xcodebuild \
-            -project test/test.xcodeproj \
-            -scheme test \
-            -configuration Debug \
-            -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
-            -derivedDataPath build \
-            build
-
-          echo "Built products:"
-          ls -R build/Build/Products || true
-
-      - name: Print bundle ID
-        run: |
-          APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
-          echo "Bundle ID:"
-          defaults read "$APP_PATH/Info.plist" CFBundleIdentifier || echo "Could not read bundle id"
-
-      - name: Boot simulator and install app
-        run: |
-          APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
-          echo "Using APP_PATH=$APP_PATH"
-
-          if [ ! -d "$APP_PATH" ]; then
-            echo "❌ app path not found: $APP_PATH"
-            ls -R "$PWD/build/Build/Products" || true
-            exit 1
-          fi
-
-          echo "Available simulators:"
+          echo "List devices:"
           xcrun simctl list devices
 
-          # Pak de eerste beschikbare iPhone simulator
-          DEVICE_UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
-          if [ -z "$DEVICE_UDID" ]; then
-            echo "❌ No available iPhone simulator found."
-            exit 1
-          fi
-
-          echo "Using simulator UDID: $DEVICE_UDID"
-
-          xcrun simctl boot "$DEVICE_UDID" || true
-          open -a Simulator || true
-
-          xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
-
-      - name: Run Maestro flows
-        run: |
-          maestro --version
-          maestro test ./ios-flow.yaml
+          echo "List runtimes:"
+          xcrun simctl list runtimes
