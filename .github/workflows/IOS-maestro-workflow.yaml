@@ -13,7 +13,7 @@ jobs:
         with:
           lfs: true
 
-      # Pak de Xcode projectmap uit uit test.xcodeproj.zip
+      # Pak de Xcode projectmap uit test.xcodeproj.zip
       - name: Unzip Xcode project
         run: |
           echo "Current directory:"
@@ -24,6 +24,12 @@ jobs:
           if [ ! -f "test.xcodeproj.zip" ]; then
             echo "❌ test.xcodeproj.zip not found in repo root."
             exit 1
+          fi
+
+          # Als test.xcodeproj per ongeluk als *file* bestaat (oude upload), verwijder die
+          if [ -f "test.xcodeproj" ]; then
+            echo "Found file test.xcodeproj, removing it so we can unzip the folder..."
+            rm test.xcodeproj
           fi
 
           unzip -o test.xcodeproj.zip
@@ -58,11 +64,11 @@ jobs:
 
       - name: Print bundle ID
         run: |
-            APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
-            echo "Bundle ID:"
-            defaults read "$APP_PATH/Info.plist" CFBundleIdentifier
+          APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
+          echo "Bundle ID:"
+          defaults read "$APP_PATH/Info.plist" CFBundleIdentifier || echo "Could not read bundle id"
 
-      - name: Run Maestro flows
+      - name: Boot simulator and install app
         run: |
           APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
           echo "Using APP_PATH=$APP_PATH"
@@ -73,5 +79,26 @@ jobs:
             exit 1
           fi
 
+          echo "Available simulators:"
+          xcrun simctl list devices
+
+          # Pak de eerste beschikbare iPhone simulator
+          DEVICE_UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
+          if [ -z "$DEVICE_UDID" ]; then
+            echo "❌ No available iPhone simulator found."
+            exit 1
+          fi
+
+          echo "Using simulator UDID: $DEVICE_UDID"
+
+          # Boot de simulator (als hij al draait is dat oké)
+          xcrun simctl boot "$DEVICE_UDID" || true
+          open -a Simulator || true
+
+          # Installeer de app op de simulator
+          xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
+
+      - name: Run Maestro flows
+        run: |
           maestro --version
-          maestro test ./ios-flow.yaml --app "$APP_PATH"
+          maestro test ./ios-flow.yaml
