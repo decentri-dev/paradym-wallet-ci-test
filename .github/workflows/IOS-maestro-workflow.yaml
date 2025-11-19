@@ -55,8 +55,20 @@ jobs:
             exit 1
           fi
 
+          echo "Booting simulator $DEVICE_UDID ..."
           xcrun simctl boot "$DEVICE_UDID" || true
-          sleep 60
+
+          echo "Waiting for SpringBoard to be ready..."
+          for i in {1..30}; do  # 30 attempts = ±60s max
+            if xcrun simctl spawn "$DEVICE_UDID" launchctl print system | grep -q "com.apple.SpringBoard"; then
+              echo "SpringBoard is running 🎉"
+              break
+            fi
+            sleep 2
+            echo "Waiting..."
+          done
+
+          echo "Installing app..."
           xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
 
       - name: Run Maestro flows
