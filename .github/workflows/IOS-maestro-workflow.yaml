@@ -5,7 +5,7 @@ on:
 
 jobs:
   e2e:
-    runs-on: macos-26
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
