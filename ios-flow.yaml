@@ -1,0 +1,6 @@
+appId: decentri.test
+tags:
+  - ios
+  - passing
+---
+- launchApp
