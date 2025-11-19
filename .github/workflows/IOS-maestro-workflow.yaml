@@ -56,6 +56,12 @@ jobs:
           echo "Built products:"
           ls -R build/Build/Products || true
 
+      - name: Print bundle ID
+        run: |
+            APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
+            echo "Bundle ID:"
+            defaults read "$APP_PATH/Info.plist" CFBundleIdentifier
+
       - name: Run Maestro flows
         run: |
           APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
