@@ -13,10 +13,58 @@ jobs:
         with:
           lfs: true
 
+      # Maestro CLI installeren
       - name: Install Maestro CLI
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
-          
-      - name: Set up Xcode Simulator & Build app
+
+      # iOS app builden voor de simulator
+      - name: Build iOS app for Simulator
         run: |
+          # (optioneel) toon Xcode versie
+          xcodebuild -version
+
+          # Build de app voor de iOS simulator
+          xcodebuild \
+            -workspace test.xcworkspace \
+            -scheme test \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.1' \
+            -derivedDataPath build \
+            build
+
+      # Simulator booten en app installeren
+      - name: Boot simulator and install app
+        run: |
+          DEVICE_NAME="iPhone 17 Pro"
+
+          echo "Available devices:"
+          xcrun simctl list devices
+
+          # Boot de gewenste simulator (als hij al draait is het oké)
+          xcrun simctl boot "$DEVICE_NAME" || true
+          open -a Simulator || true
+
+          # Pad naar de .app die zojuist is gebouwd
+          APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
+          echo "Using APP_PATH=$APP_PATH"
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "❌ app path not found: $APP_PATH"
+            ls -R "$PWD/build/Build/Products" || true
+            exit 1
+          fi
+
+          # Installeren op de booted simulator
+          xcrun simctl install booted "$APP_PATH"
+
+          # Optioneel: app alvast starten (bundle id aanpassen als je die later hebt)
+          # xcrun simctl launch booted com.example.test || true
+
+      # Maestro tests draaien
+      - name: Run Maestro flows
+        run: |
+          maestro --version
+          maestro test ./ios-flow.yaml --app "$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
