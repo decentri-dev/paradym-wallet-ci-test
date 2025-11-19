@@ -112,13 +112,16 @@ jobs:
           # Boot de simulator (als hij al draait is het oké)
           xcrun simctl boot "$DEVICE_UDID" || true
 
-          echo "Waiting a bit for simulator to boot..."
-          sleep 25
+          echo "Waiting 60s for simulator to fully boot..."
+          sleep 60
 
           echo "Installing app on simulator..."
           xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
 
       - name: Run Maestro flows
+        env:
+          # Timeout in milliseconden – default is ~120000, we gooien het omhoog
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 240000
         run: |
           maestro --version
           maestro test ./ios-flow.yaml
