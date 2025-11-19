@@ -5,7 +5,7 @@ appId: com.android.settings
 
 - pressKey: "Home"
 - openLink:
-    link: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Ffunke.animo.id%2Foid4vci%2F188e2459-6da8-4431-9062-2fcdac274f41%2Foffers%2F5d399d2a-1750-40ef-97d8-04da204de39c"
+    link: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Ffunke.animo.id%2Foid4vci%2F188e2459-6da8-4431-9062-2fcdac274f41%2Foffers%2F62c02e52-96bf-4480-80a9-54d0e1e5ed7d"
 
 - repeat:
     while:
