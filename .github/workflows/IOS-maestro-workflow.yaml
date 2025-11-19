@@ -61,6 +61,6 @@ jobs:
 
       - name: Run Maestro flows
         env:
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 120000
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 180000
         run: |
           maestro test ./ios-flow.yaml
