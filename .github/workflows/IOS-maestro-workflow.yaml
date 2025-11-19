@@ -1,4 +1,4 @@
-name: iOS E2E with Maestro (iOS 26)
+name: iOS E2E with Maestro (iOS 26.1)
 
 on:
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
           echo "=== DEVICES ==="
           xcrun simctl list devices
 
-      - name: Build iOS app for Simulator
+      - name: Build iOS app for iOS 26.1 Simulator
         run: |
           echo "Xcode version:"
           xcodebuild -version
@@ -60,13 +60,13 @@ jobs:
           echo "Project info:"
           xcodebuild -list -project test/test.xcodeproj
 
-          # Build de app vanuit test/test.xcodeproj met scheme 'test'
+          # Build de app met expliciete 26.1 simulator
           xcodebuild \
             -project test/test.xcodeproj \
             -scheme test \
             -configuration Debug \
             -sdk iphonesimulator \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination 'platform=iOS Simulator,OS=26.1,name=iPhone 17' \
             -derivedDataPath build \
             build
 
@@ -85,7 +85,7 @@ jobs:
           echo "Bundle ID:"
           defaults read "$APP_PATH/Info.plist" CFBundleIdentifier || echo "Could not read bundle id"
 
-      - name: Boot iOS 26 simulator and install app
+      - name: Boot iOS 26.1 iPhone 17 simulator and install app
         run: |
           APP_PATH="$PWD/build/Build/Products/Debug-iphonesimulator/test.app"
           echo "Using APP_PATH=$APP_PATH"
@@ -96,18 +96,14 @@ jobs:
             exit 1
           fi
 
-          echo "=== AVAILABLE DEVICES (AGAIN) ==="
-          xcrun simctl list devices
+          echo "=== DEVICES FOR iOS 26.1 ==="
+          xcrun simctl list devices 'iOS 26.1'
 
-          # Pak een iPhone met iOS 26.x (26.0, 26.1, etc.)
-          DEVICE_UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 17 .*26\./ {print $2; exit}')
-          if [ -z "$DEVICE_UDID" ]; then
-            # fallback: elke iPhone met 26.x
-            DEVICE_UDID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone .*26\./ {print $2; exit}')
-          fi
+          # Kies een iPhone 17 onder de iOS 26.1 runtime
+          DEVICE_UDID=$(xcrun simctl list devices 'iOS 26.1' | awk -F '[()]' '/iPhone 17 / {print $2; exit}')
 
           if [ -z "$DEVICE_UDID" ]; then
-            echo "❌ No available iOS 26.x iPhone simulator found. See device list above."
+            echo "❌ No iPhone 17 on iOS 26.1 found. See device list above."
             exit 1
           fi
 
@@ -116,11 +112,9 @@ jobs:
           # Boot de simulator (als hij al draait is het oké)
           xcrun simctl boot "$DEVICE_UDID" || true
 
-          # Korte wait in plaats van bootstatus die kan hangen
           echo "Waiting a bit for simulator to boot..."
           sleep 25
 
-          # Installeer de app op deze simulator
           echo "Installing app on simulator..."
           xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
 
