@@ -27,7 +27,7 @@ jobs:
 
           # Build de app voor de iOS simulator
           xcodebuild \
-            -workspace test.xcworkspace \
+            -workspace ./test.xcworkspace \
             -scheme test \
             -configuration Debug \
             -sdk iphonesimulator \
