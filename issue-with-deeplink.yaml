@@ -4,14 +4,18 @@ appId: com.android.settings
     clearState: true
 
 - pressKey: "Home"
+- runScript:
+    file: scripts/getDeeplink.js
+    env:
+      requestUrl: "https://funke.animo.id/api/offers/create"
 - openLink:
-    link: "openid-credential-offer://?credential_offer_uri=https%3A%2F%2Ffunke.animo.id%2Foid4vci%2F188e2459-6da8-4431-9062-2fcdac274f41%2Foffers%2F62c02e52-96bf-4480-80a9-54d0e1e5ed7d"
+    link: ${output.deeplink.deeplink}
 
 - repeat:
     while:
       visible: "Enter your app PIN code"
     commands:
-      - tapOn: "1"
+      - tapOn: 1
 
 - waitForAnimationToEnd:
     timeout: 5000
