@@ -11,14 +11,14 @@ appId: id.paradym.wallet.preview
     while:
       visible: Choose a 6-digit PIN
     commands:
-      - tapOn: 1
+      - tapOn: "Pin number 1"
 
 - assertVisible: Repeat your PIN
 - repeat:
     while:
       visible: Repeat your PIN
     commands:
-      - tapOn: 1
+      - tapOn: "Pin number 1"
 
 - assertVisible: Set up biometrics
 - tapOn: Activate Biometrics
