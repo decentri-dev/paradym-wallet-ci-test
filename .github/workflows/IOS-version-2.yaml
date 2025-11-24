@@ -18,7 +18,7 @@ jobs:
 
       - name: Download Paradym simulator build
         run: |
-          RELEASE_URL="https://github.com/decentri-dev/paradym-wallet-ci-test/releases/download/tar.gz-file/application-paradym-sim.tar.gz"
+          RELEASE_URL="https://github.com/decentri-dev/paradym-wallet-ci-test/releases/download/tar.gz-file/application-f4765b8d-d5da-4a56-93af-d9be28d34afb.tar.gz"
 
           echo "Downloading build from $RELEASE_URL"
 
