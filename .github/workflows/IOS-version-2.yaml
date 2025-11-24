@@ -7,57 +7,74 @@ jobs:
   e2e:
     runs-on: macos-26
 
+    env:
+      # Pad naar je simulator build in de repo (pas dit aan als nodig)
+      BUILD_ARCHIVE_PATH: ios/builds/paradym-simulator-build.tar.gz
+
     steps:
-      - name: Checkout
+      - name: Checkout repository (incl. LFS)
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Install Maestro CLI
         run: |
+          set -euo pipefail
+
           curl -Ls "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
-      - name: Download Paradym simulator build
+      - name: Verify Paradym simulator build exists
         run: |
-          RELEASE_URL="https://github.com/decentri-dev/paradym-wallet-ci-test/releases/download/tar.gz-file/application-f4765b8d-d5da-4a56-93af-d9be28d34afb.tar.gz"
+          set -euo pipefail
 
-          echo "Downloading build from $RELEASE_URL"
+          echo "Looking for simulator build at: $BUILD_ARCHIVE_PATH"
 
-          curl -L -o build.tar.gz "$RELEASE_URL"
-
-          if [ ! -f "build.tar.gz" ]; then
-            echo "❌ Failed to download build.tar.gz"
+          if [ ! -f "$BUILD_ARCHIVE_PATH" ]; then
+            echo "❌ Build archive not found at $BUILD_ARCHIVE_PATH"
+            echo "Current directory: $(pwd)"
+            echo "Listing repo contents:"
+            ls -R
             exit 1
           fi
 
       - name: Extract Paradym app from tar.gz
         run: |
+          set -euo pipefail
+
           rm -rf payload
           mkdir payload
 
-          tar -xzf build.tar.gz -C payload
+          echo "Extracting $BUILD_ARCHIVE_PATH into ./payload"
+          tar -xzf "$BUILD_ARCHIVE_PATH" -C payload
 
           APP_PATH=$(find payload -maxdepth 5 -name "*.app" | head -n 1)
 
           if [ -z "$APP_PATH" ]; then
             echo "❌ No .app found inside payload"
+            echo "Payload tree:"
             ls -R payload || true
             exit 1
           fi
 
-          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
           echo "Found .app at: $APP_PATH"
+          echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
       - name: Boot iOS 26.1 simulator and install app
         run: |
-          if [ -z "$APP_PATH" ]; then
+          set -euo pipefail
+
+          if [ -z "${APP_PATH:-}" ]; then
             echo "❌ APP_PATH is empty"
             exit 1
           fi
 
-          # kies iPhone 17 op iOS 26.1
+          echo "Looking for iPhone 17 on iOS 26.1..."
           DEVICE_UDID=$(xcrun simctl list devices 'iOS 26.1' | awk -F '[()]' '/iPhone 17 / {print $2; exit}')
+
           if [ -z "$DEVICE_UDID" ]; then
             echo "❌ No iPhone 17 (iOS 26.1) found."
+            xcrun simctl list devices
             exit 1
           fi
 
@@ -67,7 +84,7 @@ jobs:
           echo "Waiting for SpringBoard..."
           for i in {1..20}; do
             if xcrun simctl spawn "$DEVICE_UDID" launchctl print system | grep -q "com.apple.SpringBoard"; then
-              echo "Simulator is ready!"
+              echo "✅ Simulator is ready!"
               break
             fi
             sleep 2
@@ -80,5 +97,6 @@ jobs:
         env:
           MAESTRO_DRIVER_STARTUP_TIMEOUT: 240000
         run: |
-          maestro test ./ios-flow.yaml
+          set -euo pipefail
 
+          maestro test ./ios-flow.yaml
