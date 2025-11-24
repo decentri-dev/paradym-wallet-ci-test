@@ -8,8 +8,7 @@ jobs:
     runs-on: macos-26
 
     env:
-      # Pad naar je simulator build in de repo (pas dit aan als nodig)
-      BUILD_ARCHIVE_PATH: ios/builds/paradym-simulator-build.tar.gz
+      BUILD_ARCHIVE_PATH: application-f4765b8d-d5da-4a56-93af-d9be28d34afb.tar.gz
 
     steps:
       - name: Checkout repository (incl. LFS)
