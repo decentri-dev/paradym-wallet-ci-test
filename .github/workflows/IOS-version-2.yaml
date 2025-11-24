@@ -1,1 +1,84 @@
+name: iOS E2E with Maestro
+
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Maestro CLI
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Download Paradym simulator build
+        run: |
+          RELEASE_URL="https://github.com/decentri-dev/paradym-wallet-ci-test/releases/download/tar.gz-file/application-paradym-sim.tar.gz"
+
+          echo "Downloading build from $RELEASE_URL"
+
+          curl -L -o build.tar.gz "$RELEASE_URL"
+
+          if [ ! -f "build.tar.gz" ]; then
+            echo "❌ Failed to download build.tar.gz"
+            exit 1
+          fi
+
+      - name: Extract Paradym app from tar.gz
+        run: |
+          rm -rf payload
+          mkdir payload
+
+          tar -xzf build.tar.gz -C payload
+
+          APP_PATH=$(find payload -maxdepth 5 -name "*.app" | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ No .app found inside payload"
+            ls -R payload || true
+            exit 1
+          fi
+
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          echo "Found .app at: $APP_PATH"
+
+      - name: Boot iOS 26.1 simulator and install app
+        run: |
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ APP_PATH is empty"
+            exit 1
+          fi
+
+          # kies iPhone 17 op iOS 26.1
+          DEVICE_UDID=$(xcrun simctl list devices 'iOS 26.1' | awk -F '[()]' '/iPhone 17 / {print $2; exit}')
+          if [ -z "$DEVICE_UDID" ]; then
+            echo "❌ No iPhone 17 (iOS 26.1) found."
+            exit 1
+          fi
+
+          echo "Booting simulator $DEVICE_UDID"
+          xcrun simctl boot "$DEVICE_UDID" || true
+
+          echo "Waiting for SpringBoard..."
+          for i in {1..20}; do
+            if xcrun simctl spawn "$DEVICE_UDID" launchctl print system | grep -q "com.apple.SpringBoard"; then
+              echo "Simulator is ready!"
+              break
+            fi
+            sleep 2
+          done
+
+          echo "Installing app: $APP_PATH"
+          xcrun simctl install "$DEVICE_UDID" "$APP_PATH"
+
+      - name: Run Maestro flows
+        env:
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 240000
+        run: |
+          maestro test ./ios-flow.yaml
 
