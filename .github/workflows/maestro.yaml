@@ -40,3 +40,10 @@ jobs:
             
             # Run Maestro flows
             maestro test ./get-started.yaml
+
+      - name: Upload Maestro Debug Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug
+          path: ~/.maestro/tests/
+          if-no-files-found: warn
