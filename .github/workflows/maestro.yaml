@@ -40,6 +40,16 @@ jobs:
             
             # Run Maestro flows
             maestro test ./get-started.yaml
+      
+      - name: Upload Maestro Screen Recordings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-recordings
+          path: |
+            ./ **/*.mp4
+            ./*.mp4
+          if-no-files-found: warn
 
       - name: Upload Maestro Debug Artifacts
         if: always()

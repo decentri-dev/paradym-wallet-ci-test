@@ -2,6 +2,7 @@ appId: id.paradym.wallet.preview
 ---
 - launchApp:
     clearState: true
+- startRecording: recording
 
 - assertVisible: Paradym Wallet
 - tapOn: Get Started
@@ -39,6 +40,8 @@ appId: id.paradym.wallet.preview
 
 - assertVisible: Set up biometrics
 - tapOn: Activate Biometrics
+
+- stopRecording
 
 - assertVisible: Protect your data
 - tapOn: Go to wallet
