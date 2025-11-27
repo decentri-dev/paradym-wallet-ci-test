@@ -37,6 +37,9 @@ appId: id.paradym.wallet.preview
     commands:
       - tapOn: "Pin number 1"
 
+- assertVisible: Protect your data
+- tapOn: Go to wallet
+
 # - runFlow:
 #     when:
 #       visible: 'You need to enable biometrics'
