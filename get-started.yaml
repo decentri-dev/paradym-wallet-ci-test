@@ -27,9 +27,7 @@ appId: id.paradym.wallet.preview
     when:
       visible: 'Unlock wallet'
     commands:
-        - tapOn:
-          text: Cancel
-          index: 1
+        - tapOn: Cancel
 
 - runFlow:
     when:
