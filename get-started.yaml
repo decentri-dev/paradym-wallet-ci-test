@@ -23,32 +23,35 @@ appId: id.paradym.wallet.preview
 - assertVisible: Set up biometrics
 - tapOn: Activate Biometrics
 
-- runFlow:
-    when:
-      visible: 'Unlock wallet'
-    commands:
-        - tapOn: Cancel
+- assertVisible: You need to enable biometrics
+- tapOn: Open settings
 
-- runFlow:
-    when:
-      visible: 'You need to enable biometrics'
-    commands:
-        - tapOn: Open settings
+# - runFlow:
+#     when:
+#       visible: 'Unlock wallet'
+#     commands:
+#         - tapOn: Cancel
 
-- runFlow:
-    when:
-      visible: 'You need to enable biometrics'
-    commands:
-        - tapOn: Open settings
+# - runFlow:
+#     when:
+#       visible: 'You need to enable biometrics'
+#     commands:
+#         - tapOn: Open settings
 
-- runFlow:
-    when:
-      visible: 'Protect your data'
-    commands:
-        - tapOn: Go to wallet
+# - runFlow:
+#     when:
+#       visible: 'You need to enable biometrics'
+#     commands:
+#         - tapOn: Open settings
 
-- runFlow:
-    when:
-      visible: 'Hello!'
-    commands:
-        - assertVisible: Receive or share from your wallet 
+# - runFlow:
+#     when:
+#       visible: 'Protect your data'
+#     commands:
+#         - tapOn: Go to wallet
+
+# - runFlow:
+#     when:
+#       visible: 'Hello!'
+#     commands:
+#         - assertVisible: Receive or share from your wallet 
