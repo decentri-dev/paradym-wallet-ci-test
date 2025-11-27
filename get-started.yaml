@@ -23,8 +23,8 @@ appId: id.paradym.wallet.preview
 - assertVisible: Set up biometrics
 - tapOn: Activate Biometrics
 
-- assertVisible: You need to enable biometrics
-- tapOn: Open settings
+- assertVisible: Unlock wallet
+- tapOn: Cancel
 
 # - runFlow:
 #     when:
