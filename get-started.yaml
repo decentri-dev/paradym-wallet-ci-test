@@ -23,9 +23,6 @@ appId: id.paradym.wallet.preview
 - assertVisible: Set up biometrics
 - tapOn: Activate Biometrics
 
-- assertVisible: Protect your data
-- tapOn: Go to wallet
-
 - assertVisible: Choose a 6-digit PIN
 - repeat:
     while:
