@@ -28,10 +28,11 @@ jobs:
       - name: Start Android Emulator & Run Maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
-          target: google_apis
+          api-level: 30
           arch: x86_64
-          profile: pixel_7_pro
+          target: google_apis
+          profile: Pixel_5
+          emulator-options: -no-window -no-snapshot -gpu swiftshader_indirect
           script: |
             echo "Emulator started successfully"
             
