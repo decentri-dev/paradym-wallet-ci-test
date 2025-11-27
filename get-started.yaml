@@ -37,6 +37,9 @@ appId: id.paradym.wallet.preview
     commands:
       - tapOn: "Pin number 1"
 
+- assertVisible: Set up biometrics
+- tapOn: Activate Biometrics
+
 - assertVisible: Protect your data
 - tapOn: Go to wallet
 
