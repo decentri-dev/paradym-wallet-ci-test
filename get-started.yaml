@@ -26,11 +26,25 @@ appId: id.paradym.wallet.preview
 - assertVisible: Protect your data
 - tapOn: Go to wallet
 
-# - runFlow:
-#     when:
-#       visible: 'Unlock wallet'
-#     commands:
-#         - tapOn: Cancel
+- runFlow:
+    when:
+      visible: 'Choose a 6-digit PIN'
+    commands:
+        - repeat:
+          while:
+            visible: Choose a 6-digit PIN
+          commands:
+            - tapOn: "Pin number 1"
+
+- runFlow:
+    when:
+      visible: 'Repeat your PIN'
+    commands:
+        - repeat:
+          while:
+            visible: Repeat your PIN
+          commands:
+            - tapOn: "Pin number 1"
 
 # - runFlow:
 #     when:
