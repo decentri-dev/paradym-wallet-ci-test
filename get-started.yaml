@@ -24,7 +24,7 @@ appId: id.paradym.wallet.preview
 - tapOn: Go to wallet
 
 - extendedWaitUntil:
-    visible: "My text that should be visible"
+    visible: "Hello!"
     timeout: 15000
 
 - assertVisible: Hello!
