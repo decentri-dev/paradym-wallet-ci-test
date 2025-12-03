@@ -1,0 +1,58 @@
+appId: com.android.settings
+---
+- launchApp:
+    clearState: true
+
+- pressKey: "Home"
+
+- runScript:
+    file: scripts/request.js
+    env:
+      ACTION: '{"type":"createOffer", "format":"mdoc", "flow":"preAuthorized"}'
+- openLink:
+    link: ${output.request}
+
+- repeat:
+    while:
+      visible: "Enter your app PIN code"
+    commands:
+      - tapOn: "Pin number 1"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Interact with Bundesdruckerei?"
+- assertVisible: "Bundesdruckerei wants to offer you a card."
+- tapOn: "Yes, continue"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Card offered"
+- assertVisible: "Bundesdruckerei wants to issue you the following card:"
+- assertVisible: "Card"
+- assertVisible: "Drivers Licence"
+- assertVisible: "Stop"
+- tapOn: "Continue"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Is the information correct?"
+- assertVisible: "Credential"
+- assertVisible: "Decline"
+- tapOn: "Accept"
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Success!"
+- assertVisible: "Card successfully added to your wallet!"
+- assertVisible: "Credential"
+- tapOn: Go to wallet
+
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- assertVisible: "Hello!"
+- assertVisible: "Receive or share from your wallet "
