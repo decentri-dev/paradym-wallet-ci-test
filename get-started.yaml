@@ -27,7 +27,7 @@ appId: id.paradym.wallet.preview
     timeout: 5000
 
 - extendedWaitUntil:
-    assertVisible: "Hello!"
+    visible: "Hello!"
     timeout: 15000
 
 - assertVisible: "Hello!"
