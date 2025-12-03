@@ -37,7 +37,7 @@ jobs:
             echo "Emulator started successfully"
             
             # Install APK
-            adb install ./paradym-without-biometrics-preview.apk
+            adb install ./paradym-preview.apk
             
             # Run Maestro flows
             maestro test ./get-started.yaml
